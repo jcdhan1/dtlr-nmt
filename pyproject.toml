@@ -1,0 +1,29 @@
+[project]
+name = "dtlr-nmt"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Jack Han",email = "jcdhan@proton.me"}
+]
+requires-python = ">=3.11"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (==8.1.1)"
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "3.0.3"
+flask-cors = "5.0.0"
+numpy = "<2.0.0"
+# Explicitly pin torch and argostranslate to prevent duplicate rule caching
+torch = "2.2.2"
+argostranslate = "1.11.0"
+gunicorn = "23.0.0"
+
