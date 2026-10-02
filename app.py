@@ -3,10 +3,28 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import argostranslate.package
 import argostranslate.translate
+import argostranslate.sbd
+import stanza
 
 app = Flask(__name__)
 # Development: Allows a Windows frontend (localhost) to safely call WSL backend
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+# Use a Stanza Pipeline object that avoids overwriting a custom model's own stanza/resources.json and allows unknown languages
+def custom_lazy_pipeline(self):
+    if self.stanza_pipeline is None:
+        self.stanza_pipeline = stanza.Pipeline(
+            lang=self.stanza_lang_code,
+            dir=str(self.pkg.package_path / "stanza"),
+            processors="tokenize",
+            use_gpu=argostranslate.settings.device == "cuda",
+            logging_level="WARNING",
+            download_method=stanza.DownloadMethod.NONE,
+            allow_unknown_language=True
+        )
+    return self.stanza_pipeline
+
+argostranslate.sbd.StanzaSentencizer.lazy_pipeline = custom_lazy_pipeline
 
 # Automatically find and install models in the models folder
 MODELS_DIR = "models"
@@ -26,8 +44,9 @@ load_local_models()
 def translate():
     data = request.get_json() or {}
     text = data.get('text', '')
-    from_lang = data.get('from', '')
-    to_lang = data.get('to', '')
+    # Make incoming BCP 47 tags entirely lower-case like Stanza does (e.g. resources.json has "zh-hans" and "zh-hant").
+    from_lang = data.get('from', '').lower()
+    to_lang = data.get('to', '').lower()
 
     if not text or not from_lang or not to_lang:
         return jsonify({"error": "Missing required fields: text, from, to"}), 400
