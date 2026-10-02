@@ -1,3 +1,4 @@
+import argparse
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -29,16 +30,18 @@ argostranslate.sbd.StanzaSentencizer.lazy_pipeline = custom_lazy_pipeline
 # Automatically find and install models in the models folder
 MODELS_DIR = "models"
 
-def load_local_models():
-    if os.path.exists(MODELS_DIR):
-        for file in os.listdir(MODELS_DIR):
-            if file.endswith(".argosmodel"):
-                model_path = os.path.join(MODELS_DIR, file)
-                print(f"Installing custom model: {model_path}")
-                argostranslate.package.install_from_path(model_path)
+def load_local_models(reinstall_models=False):
+    if not argostranslate.package.get_installed_packages() or reinstall_models:
+        if os.path.exists(MODELS_DIR):
+            for file in os.listdir(MODELS_DIR):
+                if file.endswith(".argosmodel"):
+                    model_path = os.path.join(MODELS_DIR, file)
+                    print(f"Installing custom model: {model_path}")
+                    argostranslate.package.install_from_path(model_path)
     print("Model initialisation complete.")
 
-load_local_models()
+if __name__ != '__main__':
+    load_local_models()
 
 @app.route('/translate', methods=['POST'])
 def translate():
@@ -62,5 +65,13 @@ def translate():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--reinstall-models",
+        action="store_true",
+        help="Reinstall models from /models, overwriting any identically named ones.",
+    )
+    args, _ = parser.parse_known_args()
+    load_local_models(reinstall_models=args.reinstall_models)
     # Listen on all network interfaces inside WSL
     app.run(host='0.0.0.0', port=5000)

@@ -4,3 +4,7 @@ Neural Machine Translation API for the DTLR website. Built upon [argos-translate
 
 ![CI/CD Pipeline](https://github.com/jcdhan1/dtlr-nmt/actions/workflows/ci-cd.yml/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+## Usage
+
+Argos Translate Models in `models/` are installed automatically when none are already installed. To overwrite installed models that are identically named, run the application with `--reinstall-models`.
