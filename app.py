@@ -34,6 +34,17 @@ def configure_cors(app):
 
 configure_cors(app)
 
+@app.after_request
+def set_referrer_policy(response):
+    environment = os.environ.get("APP_ENV", "development").strip().lower()
+    
+    if environment == "production":
+        response.headers['Referrer-Policy'] = 'no-referrer'
+    elif environment == "development":
+        response.headers['Referrer-Policy'] = 'unsafe-url'  # Full URL for debugging
+    
+    return response
+
 # Use a Stanza Pipeline object that avoids overwriting a custom model's own stanza/resources.json and allows unknown languages
 def custom_lazy_pipeline(self):
     if self.stanza_pipeline is None:
