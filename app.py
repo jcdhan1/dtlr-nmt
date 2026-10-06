@@ -8,8 +8,31 @@ import argostranslate.sbd
 import stanza
 
 app = Flask(__name__)
-# Development: Allows a Windows frontend (localhost) to safely call WSL backend
-CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+def configure_cors(app):
+    environment = os.environ.get("APP_ENV", "development").strip().lower()
+
+    if environment == "production":
+        allowed_origins = [
+            origin.strip()
+            for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+            if origin.strip()
+        ]
+        if not allowed_origins:
+            raise RuntimeError(
+                "ALLOWED_ORIGINS must contain at least one origin when APP_ENV=production"
+            )
+    elif environment == "development":
+        # Allows local frontends, including a Windows frontend calling the WSL backend.
+        allowed_origins = "*"
+    else:
+        raise RuntimeError("APP_ENV must be either 'development' or 'production'")
+
+    CORS(app, resources={r"/*": {"origins": allowed_origins}})
+
+
+configure_cors(app)
 
 # Use a Stanza Pipeline object that avoids overwriting a custom model's own stanza/resources.json and allows unknown languages
 def custom_lazy_pipeline(self):
@@ -31,7 +54,7 @@ argostranslate.sbd.StanzaSentencizer.lazy_pipeline = custom_lazy_pipeline
 MODELS_DIR = "models"
 
 def load_local_models(reinstall_models=False):
-    if not argostranslate.package.get_installed_packages() or reinstall_models:
+    if reinstall_models or not argostranslate.package.get_installed_packages():
         if os.path.exists(MODELS_DIR):
             for file in os.listdir(MODELS_DIR):
                 if file.endswith(".argosmodel"):

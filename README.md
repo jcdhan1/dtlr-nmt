@@ -1,10 +1,7 @@
-# Digital Techniques for Language Revival: Neural Machine Translation API
+# Sample models
 
-Neural Machine Translation API for the DTLR website. Built upon [argos-translate](https://github.com/argosopentech/argos-translate) using custom models involving languages ranging from safe to critically endangered.
-
-![CI/CD Pipeline](https://github.com/jcdhan1/dtlr-nmt/actions/workflows/ci-cd.yml/badge.svg)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
-## Usage
-
-Argos Translate Models in `models/` are installed automatically when none are already installed. To overwrite installed models that are identically named, run the application with `--reinstall-models`.
+| Name | Original work by| License   |   |   |
+|------|------------------|-----------|---|---|
+| [translate-en-gb_vi-1_9.argosmodel](translate-en-gb_vi-1_9.argosmodel) | Jörg Tiedemann and Santhosh Thottingal | CC-BY 4.0 |   |   |
+| [translate-vi_en-gb-1_9.argosmodel](translate-vi_en-gb-1_9.argosmodel) | Jörg Tiedemann and Santhosh Thottingal | CC-BY 4.0 |   |   |
+|      |                  |           |   |   |
